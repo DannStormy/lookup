@@ -48,13 +48,16 @@ Then set the environment variables (see `.env.example` for the full annotated li
 
 ### Cron cadence
 
-`vercel.json` runs the tick every 3 minutes. On **Vercel Pro** this works as-is. On **Hobby**, Vercel throttles crons to roughly daily, which is too slow for minute-accurate alerts, so instead point a free external scheduler (cron-job.org or Upstash QStash) at:
+There is no `vercel.json` cron, because Vercel **Hobby** rejects any deploy whose
+cron runs more than once a day. Instead, drive the tick with a free external
+scheduler (cron-job.org or Upstash QStash) pointed at:
 
 ```
 https://YOUR_SITE/api/cron/tick?key=YOUR_CRON_SECRET
 ```
 
-every 2–3 minutes, and delete the `crons` block from `vercel.json`.
+every 2–3 minutes. On **Vercel Pro** you can instead add a `vercel.json` with
+`{ "crons": [{ "path": "/api/cron/tick", "schedule": "*/3 * * * *" }] }`.
 
 ## Not built yet (roadmap)
 
