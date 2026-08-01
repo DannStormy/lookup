@@ -1,26 +1,196 @@
 @import "tailwindcss";
 
+/* ── Look Up: a calm night sky ─────────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* deep space, top to horizon */
+  --sky-top: #0b1030;
+  --sky-mid: #080b1d;
+  --sky-horizon: #04050c;
+
+  --ink: #eef1fb; /* primary text, soft starlight white */
+  --ink-soft: #a6adc8; /* secondary */
+  --ink-dim: #646b8a; /* tertiary, labels */
+  --line: rgba(255, 255, 255, 0.08);
+
+  --starlight: #f4d9a0; /* warm accent, the "look up" glow */
+  --starlight-soft: rgba(244, 217, 160, 0.16);
+
+  /* per-phenomenon hues, used only as small accents */
+  --hue-iss: #d8def0;
+  --hue-aurora: #7ee0c0;
+  --hue-meteor: #b6a2f0;
+  --hue-planet: #f2c98a;
+  --hue-moon: #bcd0f0;
+  --hue-conjunction: #f0a6c2;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-dim: var(--ink-dim);
+  --color-starlight: var(--starlight);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html,
+body {
+  background: var(--sky-horizon);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* the whole page sits on a deep vertical gradient with a faint high glow */
+.night {
+  position: relative;
+  min-height: 100dvh;
+  background:
+    radial-gradient(
+      120% 80% at 50% -10%,
+      rgba(90, 80, 180, 0.28) 0%,
+      rgba(30, 30, 90, 0.12) 34%,
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      var(--sky-top) 0%,
+      var(--sky-mid) 42%,
+      var(--sky-horizon) 100%
+    );
+  overflow-x: hidden;
+}
+
+/* a felt horizon: warm ground-glow at the very bottom, so "up" has a "down" */
+.night::before {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28vh;
+  background: linear-gradient(
+    to top,
+    rgba(244, 217, 160, 0.07),
+    rgba(126, 224, 192, 0.02) 42%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* a slow, faint auroral wash drifting far behind everything */
+.night::after {
+  content: "";
+  position: fixed;
+  inset: -20% -20% auto -20%;
+  height: 70vh;
+  background: radial-gradient(
+    50% 60% at 30% 40%,
+    rgba(126, 224, 192, 0.06),
+    transparent 70%
+  );
+  filter: blur(30px);
+  animation: drift 46s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-4%, 0, 0) scale(1);
+    opacity: 0.6;
+  }
+  to {
+    transform: translate3d(8%, 4%, 0) scale(1.15);
+    opacity: 1;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* content rises in gently on load; --rise-delay staggers the cascade */
+.rise {
+  animation: rise 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-optical-sizing: auto;
+}
+
+/* the one warm action on each screen: glass that holds the starlight glow */
+.cta {
+  border: 1px solid rgba(244, 217, 160, 0.42);
+  background: rgba(244, 217, 160, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(244, 217, 160, 0.05),
+    0 10px 34px -14px rgba(244, 217, 160, 0.4);
+  backdrop-filter: blur(8px);
+  color: var(--ink);
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+.cta:hover {
+  border-color: rgba(244, 217, 160, 0.7);
+  color: var(--starlight);
+  background: rgba(244, 217, 160, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(244, 217, 160, 0.1),
+    0 12px 40px -14px rgba(244, 217, 160, 0.55);
+}
+
+/* stop the ticking seconds from nudging layout */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* a live countdown breathes rather than blinks */
+.breathe {
+  animation: breathe 4s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.84;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* the tracked, small-caps kicker labels */
+.kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+/* soft focus ring that fits the theme */
+*:focus-visible {
+  outline: 2px solid var(--starlight-soft);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .night::after,
+  .rise,
+  .twinkle,
+  .breathe {
+    animation: none !important;
+  }
 }

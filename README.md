@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Look Up
 
-## Getting Started
+The rare, beautiful things happening in the sky right above your exact spot tonight, and the precise minute to look up.
 
-First, run the development server:
+Point it at a location and it computes tonight's real sky from live data: the space station's visible passes (SGP4 orbital mechanics + real TLEs from CelesTrak), **ISS transits of the moon and sun** (the exact second the station crosses the disc, from your exact spot), the moon's phase and position, bright visible planets, meteor-shower quality from radiant altitude, aurora likelihood from live NOAA space weather, close conjunctions, **naked-eye comets** (Keplerian orbits from live MPC elements), and **freshly launched Starlink trains**. No API keys. Free, no signup, works anywhere on Earth.
+
+## Phenomena engine
+
+- **ISS passes** — `iss.ts`: visible passes (sunlit satellite + observer in darkness + above 10°).
+- **ISS transits** — `transits.ts`: the station crossing the lunar/solar disc, found by coarse-then-fine-then-0.02s refinement. Sub-second, and the visible path is only a few km wide, so most spots see none for months. Validated by finding a real solar-transit centerline (62 adjacent locations forming a clean ground track, durations 0.3–0.7s).
+- **Comets** — `comets.ts` + `comet-kepler.ts`: a real Keplerian propagator (elliptical / near-parabolic Barker / hyperbolic) fed by live MPC `CometEls.txt`, with the standard apparent-magnitude formula and per-observer visibility. Nothing is hardcoded as "visible." Validated against NEOWISE (0.69 AU closest approach on 2020-07-23, matching reality) and Halley (perihelion r = q).
+- **Starlink trains** — `starlink.ts`: finds the freshest still-clustered, still-low batch (CelesTrak `last-30-days`, grouped by launch designator, mean motion > 15.5) and checks for a visible pass.
+
+## Stack
+
+- Next.js 16 (App Router) + React 19 + Tailwind v4, TypeScript
+- `astronomy-engine` (sky geometry), `satellite.js` (SGP4 passes)
+- Engine: `src/lib/astro/*`, assembler `sky.ts`, API `GET /api/sky?lat&lon`
+- UI: `src/components/*` (calm dark celestial, Fraunces serif, canvas starfield, "where to look" compass)
+- Share cards: `GET /api/card?lat&lon&name` renders a 1200x630 social image; `/?lat&lon&name` deep-links + unfurls
+- Web Push: `src/lib/push/*`, service worker `public/sw.js`, routes `POST /api/push/{subscribe,unsubscribe,test}`, scheduler `GET /api/cron/tick`. Subscriptions live in Upstash Redis in prod (local file store in dev). Installable PWA.
+
+## The push loop
+
+1. A browser subscribes: service worker + VAPID key, and we store the subscription with its location and preferences.
+2. A cron hits `/api/cron/tick` every few minutes. For each subscriber it computes the sky at their spot and finds events that are *due*: an ISS pass beginning within their lead time, or a rare aurora/meteor peak while it's dark where they are.
+3. It sends a value-carrying push ("Look up in about 8 minutes. The space station is rising in the northeast, brighter than any star. Go outside and look."), dedupes so it never nags twice, and prunes dead subscriptions.
+
+## Develop
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deploy (Vercel)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm i -g vercel
+vercel
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Then set the environment variables (see `.env.example` for the full annotated list):
 
-## Learn More
+- `NEXT_PUBLIC_SITE_URL` — your deployed origin, e.g. `https://lookup.app`, no trailing slash. Makes share-card `og:image` URLs absolute.
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` — web push keys. Generate with `npx web-push generate-vapid-keys`.
+- `CRON_SECRET` — protects the tick endpoint. `openssl rand -hex 24`.
+- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — a free Upstash Redis for durable subscriptions (the local file store is not durable on Vercel). Create at upstash.com.
 
-To learn more about Next.js, take a look at the following resources:
+### Cron cadence
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`vercel.json` runs the tick every 3 minutes. On **Vercel Pro** this works as-is. On **Hobby**, Vercel throttles crons to roughly daily, which is too slow for minute-accurate alerts, so instead point a free external scheduler (cron-job.org or Upstash QStash) at:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+https://YOUR_SITE/api/cron/tick?key=YOUR_CRON_SECRET
+```
 
-## Deploy on Vercel
+every 2–3 minutes, and delete the `crons` block from `vercel.json`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Not built yet (roadmap)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Look Up+ (Paddle, ~$15/yr): guaranteed rare-event alerts, clear-sky/cloud-cover confirmation, saved locations, custom lead time. The push backbone and paywall-gating are the natural next step.
+- Preferences UI (toggle which event kinds alert you; quiet hours using the stored timezone).

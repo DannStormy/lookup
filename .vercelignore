@@ -1,0 +1,4 @@
+# never upload local secrets or the dev-only file store
+.env.local
+.env*.local
+.data
