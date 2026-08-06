@@ -27,18 +27,18 @@ const SITE_URL =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Look Up — the sky above you tonight",
+  title: "Look Up: the sky above you tonight",
   description:
     "Rare, beautiful things happen in the sky right above you. Look Up tells you what, where, and the exact minute to look.",
   openGraph: {
-    title: "Look Up — the sky above you tonight",
+    title: "Look Up: the sky above you tonight",
     description:
       "The space station overhead, a planet you keep mistaking for a star, meteors if you know which night. The exact sky above your exact spot, and when to look up.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Look Up — the sky above you tonight",
+    title: "Look Up: the sky above you tonight",
     description:
       "The exact sky above your exact spot, and the precise minute to look up.",
   },
