@@ -57,18 +57,24 @@ async function getOvation(): Promise<OvationGrid | null> {
   }
 }
 
+interface KpRow {
+  time_tag: string;
+  kp: number | string;
+}
+
 async function getMaxKpNext24h(): Promise<number | null> {
   if (kpCache && Date.now() - kpCache.at < TTL) return kpCache.data;
   try {
     const res = await fetch(KP_FORECAST_URL, { cache: "no-store", signal: AbortSignal.timeout(5000) });
     if (!res.ok) throw new Error(`kp ${res.status}`);
-    const rows = (await res.json()) as [string, string, string, string][];
-    // First row is a header. Columns: time_tag, kp, observed, noaa_scale.
+    // NOAA has served this both as objects and as arrays under a header row.
+    const rows = (await res.json()) as (KpRow | [string, string])[];
     const now = Date.now();
     let maxKp = 0;
-    for (const r of rows.slice(1)) {
-      const t = Date.parse(r[0] + "Z");
-      const kp = parseFloat(r[1]);
+    for (const r of rows) {
+      const [tag, value] = Array.isArray(r) ? r : [r.time_tag, r.kp];
+      const t = Date.parse(tag + "Z");
+      const kp = Number(value);
       if (!isFinite(t) || !isFinite(kp)) continue;
       if (t >= now && t <= now + 24 * 3600 * 1000) maxKp = Math.max(maxKp, kp);
     }
@@ -114,12 +120,21 @@ export async function auroraEvent(place: Place): Promise<SkyEvent | null> {
 
   const rarity = strong ? 0.95 : 0.85; // aurora is the rarest thing most people ever see
 
+  const storm = kp >= 4;
   const subtitle = strong
     ? `Aurora is likely tonight. Watch ${dir}.`
-    : `There's a real chance of aurora tonight, low on ${dir}.`;
+    : storm
+      ? `There's a real chance of aurora tonight, low on ${dir}.`
+      : `A small chance of aurora tonight, toward ${dir}.`;
 
+  const nowcast =
+    nowcastProb >= 8
+      ? `, and the live nowcast puts the chance overhead near ${Math.round(nowcastProb)}%`
+      : "";
   const detail =
-    `A geomagnetic storm is pushing the aurora toward you (Kp around ${kp.toFixed(0)}${nowcastProb >= 8 ? `, and the live nowcast puts the chance overhead near ${Math.round(nowcastProb)}%` : ""}). ` +
+    (storm
+      ? `A geomagnetic storm is pushing the aurora toward you (Kp around ${kp.toFixed(0)}${nowcast}). `
+      : `No storm tonight, but you sit close to the auroral oval (Kp around ${kp.toFixed(0)}${nowcast}). `) +
     `Get away from city lights, give the sky an hour after full dark, and look low toward ${dir}. ` +
     `To the eye it often reads as a pale grey-green glow or faint moving pillars; a phone camera on a few seconds of exposure will pull out the colour your eyes can't. This is the one on this list most people go a lifetime without seeing.`;
 
