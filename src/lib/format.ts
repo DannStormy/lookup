@@ -99,3 +99,15 @@ export function dayTimeIn(iso: string, tz: string, nowIso: string): string {
   const day = diff === 0 ? "Today" : diff === 1 ? "Tomorrow" : p.weekday;
   return `${day}, ${p.hour}:${p.minute} ${p.dayPeriod}`;
 }
+
+/** "Sunday, December 13" in a named zone. */
+export function dateIn(iso: string, tz: string): string {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: tz,
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).formatToParts(new Date(iso));
+  const p = Object.fromEntries(parts.map((x) => [x.type, x.value]));
+  return `${p.weekday}, ${p.month} ${p.day}`;
+}

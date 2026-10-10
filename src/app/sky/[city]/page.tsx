@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import CitySky from "@/components/CitySky";
-import Starfield from "@/components/Starfield";
+import { ChipLink, ChipList } from "@/components/CityLinks";
+import PageShell, { PageTitle } from "@/components/PageShell";
+import { showersByNextPeak } from "@/lib/astro/shower-forecast";
 import { computeSky } from "@/lib/astro/sky";
 import { appHref, getCity, nearbyCities } from "@/lib/cities";
 import { SITE_URL } from "@/lib/site";
@@ -49,6 +51,7 @@ export default async function CityPage({ params }: { params: Params }) {
 
   const report = await computeSky({ lat: city.lat, lon: city.lon, elevation: 0, label: city.name });
   const nearby = nearbyCities(city);
+  const showers = showersByNextPeak().slice(0, 3);
 
   const breadcrumbs = {
     "@context": "https://schema.org",
@@ -61,72 +64,63 @@ export default async function CityPage({ params }: { params: Params }) {
   };
 
   return (
-    <main className="night min-h-[100dvh]">
+    <PageShell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs).replace(/</g, "\\u003c") }}
       />
-      <Starfield />
-      <div className="relative z-10 mx-auto max-w-[680px] px-6 pb-16">
-        <header className="flex items-center justify-between py-6">
-          <Link href="/" className="kicker">
-            Look Up
-          </Link>
-          <Link href="/sky" className="text-[13px] text-ink-dim transition hover:text-ink-soft">
-            All cities
-          </Link>
-        </header>
+      <PageTitle kicker={`${city.name}, ${city.country}`}>The sky above {city.name} tonight</PageTitle>
 
-        <p className="kicker mb-6 mt-4">
-          {city.name}, {city.country}
+      <CitySky city={city} initial={report} />
+
+      <section className="mt-12">
+        <Link
+          href={appHref(city)}
+          className="cta inline-block rounded-full px-6 py-3.5 text-[15px] font-medium"
+        >
+          Open the live sky for {city.name}
+        </Link>
+        <p className="mt-3 max-w-md text-[13px] leading-relaxed text-ink-dim">
+          Live countdowns, a compass showing where to point, and an alert a few
+          minutes before the space station passes over. Free, no signup.
         </p>
-        <h1 className="font-display text-[2.6rem] leading-[1.04] tracking-[-0.02em] text-ink sm:text-6xl">
-          The sky above {city.name} tonight
-        </h1>
+      </section>
 
-        <CitySky city={city} initial={report} />
+      <section className="mt-14">
+        <h2 className="kicker mb-4">Nearby skies</h2>
+        <ChipList>
+          {nearby.map((c) => (
+            <li key={c.slug}>
+              <ChipLink href={`/sky/${c.slug}`}>{c.name}</ChipLink>
+            </li>
+          ))}
+        </ChipList>
+      </section>
 
-        <section className="mt-12">
-          <Link
-            href={appHref(city)}
-            className="cta inline-block rounded-full px-6 py-3.5 text-[15px] font-medium"
-          >
-            Open the live sky for {city.name}
+      <section className="mt-10">
+        <h2 className="kicker mb-4">Meteor showers from {city.name}</h2>
+        <ChipList>
+          {showers.map(({ shower, peak }) => (
+            <li key={shower.key}>
+              <ChipLink href={`/meteor-showers/${shower.key}/${city.slug}`}>
+                {shower.name} {peak.getUTCFullYear()}
+              </ChipLink>
+            </li>
+          ))}
+        </ChipList>
+      </section>
+
+      <footer className="mt-14 border-t border-[var(--line)] pt-6 text-xs leading-relaxed text-ink-dim">
+        <p>
+          Worked out for the centre of {city.name} from live satellite tracking,
+          NOAA space-weather data, and where the sun, moon and planets actually
+          are. Not somewhere in {city.name}?{" "}
+          <Link href="/" className="underline underline-offset-4 hover:text-ink-soft">
+            Use your own location
           </Link>
-          <p className="mt-3 max-w-md text-[13px] leading-relaxed text-ink-dim">
-            Live countdowns, a compass showing where to point, and an alert a few
-            minutes before the space station passes over. Free, no signup.
-          </p>
-        </section>
-
-        <section className="mt-14">
-          <h2 className="kicker mb-4">Nearby skies</h2>
-          <ul className="flex flex-wrap gap-2">
-            {nearby.map((c) => (
-              <li key={c.slug}>
-                <Link
-                  href={`/sky/${c.slug}`}
-                  className="inline-block rounded-full border border-[var(--line)] px-3.5 py-1.5 text-[13px] text-ink-soft transition hover:border-[rgba(244,217,160,0.4)] hover:text-ink"
-                >
-                  {c.name}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <footer className="mt-14 border-t border-[var(--line)] pt-6 text-xs leading-relaxed text-ink-dim">
-          <p>
-            Worked out for the centre of {city.name} from live satellite tracking,
-            NOAA space-weather data, and where the sun, moon and planets actually
-            are. Not somewhere in {city.name}?{" "}
-            <Link href="/" className="underline underline-offset-4 hover:text-ink-soft">
-              Use your own location
-            </Link>
-            .
-          </p>
-        </footer>
-      </div>
-    </main>
+          .
+        </p>
+      </footer>
+    </PageShell>
   );
 }
