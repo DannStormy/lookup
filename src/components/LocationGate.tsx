@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Place } from "@/lib/astro/types";
 
 const CITIES: { label: string; lat: number; lon: number }[] = [
@@ -85,6 +86,12 @@ export default function LocationGate({
               </button>
             ))}
           </div>
+          <Link
+            href="/sky"
+            className="mt-5 inline-block text-[13px] text-ink-dim underline-offset-4 transition hover:text-ink-soft hover:underline"
+          >
+            More cities
+          </Link>
         </div>
       </div>
     </main>
