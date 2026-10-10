@@ -47,7 +47,7 @@ function auroraEdgeGeomagLat(kp: number): number {
 async function getOvation(): Promise<OvationGrid | null> {
   if (ovationCache && Date.now() - ovationCache.at < TTL) return ovationCache.data;
   try {
-    const res = await fetch(OVATION_URL, { cache: "no-store", signal: AbortSignal.timeout(5000) });
+    const res = await fetch(OVATION_URL, { signal: AbortSignal.timeout(5000) });
     if (!res.ok) throw new Error(`ovation ${res.status}`);
     const data = (await res.json()) as OvationGrid;
     ovationCache = { data, at: Date.now() };
@@ -65,7 +65,7 @@ interface KpRow {
 async function getMaxKpNext24h(): Promise<number | null> {
   if (kpCache && Date.now() - kpCache.at < TTL) return kpCache.data;
   try {
-    const res = await fetch(KP_FORECAST_URL, { cache: "no-store", signal: AbortSignal.timeout(5000) });
+    const res = await fetch(KP_FORECAST_URL, { signal: AbortSignal.timeout(5000) });
     if (!res.ok) throw new Error(`kp ${res.status}`);
     // NOAA has served this both as objects and as arrays under a header row.
     const rows = (await res.json()) as (KpRow | [string, string])[];

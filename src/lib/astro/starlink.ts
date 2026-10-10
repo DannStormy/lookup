@@ -55,7 +55,6 @@ async function getFreshBatches(): Promise<Batch[]> {
   try {
     const res = await fetch(LAST30_URL, {
       headers: { "User-Agent": "lookup-sky/0.1 (astronomy hobby app)" },
-      cache: "no-store",
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`celestrak ${res.status}`);

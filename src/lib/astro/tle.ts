@@ -31,8 +31,6 @@ export async function getIssTle(): Promise<TleSet> {
   try {
     const res = await fetch(CELESTRAK_ISS, {
       headers: { "User-Agent": "lookup-sky/0.1 (astronomy hobby app)" },
-      // Next.js: don't let the framework cache this; we manage TTL ourselves.
-      cache: "no-store",
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(`celestrak ${res.status}`);

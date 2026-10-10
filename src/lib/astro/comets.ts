@@ -82,7 +82,6 @@ async function getComets(): Promise<CometRecord[]> {
   try {
     const res = await fetch(COMETELS_URL, {
       headers: { "User-Agent": "lookup-sky/0.1 (astronomy hobby app)" },
-      cache: "no-store",
       signal: AbortSignal.timeout(6000),
     });
     if (!res.ok) throw new Error(`mpc ${res.status}`);
