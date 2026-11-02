@@ -81,7 +81,7 @@ export async function GET(request: Request) {
         ))}
 
         <div style={{ display: "flex", fontSize: 30, letterSpacing: 6, color: "#b6a2f0", textTransform: "uppercase" }}>
-          {peakNight(new Date(f.dusk), city.tz)}
+          Night of {peakNight(new Date(f.dusk), city.tz)}
         </div>
         <div style={{ display: "flex", marginTop: 24, fontFamily: "Fraunces", fontWeight: 600, fontSize: 150, lineHeight: 1 }}>
           {shower.name}
