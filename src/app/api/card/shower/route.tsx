@@ -57,7 +57,7 @@ export async function GET(request: Request) {
           display: "flex",
           flexDirection: "column",
           position: "relative",
-          padding: "210px 130px 340px 80px",
+          padding: "380px 130px 340px 80px",
           backgroundColor: "#080b1d",
           backgroundImage:
             "radial-gradient(1300px 1100px at 50% -5%, #2a2864 0%, #12163a 40%, #05060d 78%)",
