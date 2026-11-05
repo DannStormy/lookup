@@ -42,3 +42,10 @@ next-env.d.ts
 
 # local push subscription store (dev)
 /.data/
+
+# generated social images and source photos (re-render from brand/*/render.tsx)
+/brand/**/slides/
+/brand/**/photos/
+/brand/**/preview.png
+/brand/leonids-week1/*.png
+.DS_Store
