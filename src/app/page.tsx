@@ -24,11 +24,12 @@ export async function generateMetadata({
     const title = name ? `The sky above ${name} tonight` : "The sky above you tonight";
     return {
       title,
+      alternates: { canonical: "/" },
       openGraph: { title, images: [{ url: card, width: 1200, height: 630 }] },
       twitter: { card: "summary_large_image", title, images: [card] },
     };
   }
-  return {};
+  return { alternates: { canonical: "/" } };
 }
 
 export default function Home() {

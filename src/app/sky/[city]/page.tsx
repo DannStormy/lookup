@@ -7,6 +7,7 @@ import PageShell, { PageTitle } from "@/components/PageShell";
 import { showersByNextPeak } from "@/lib/astro/shower-forecast";
 import { computeSky } from "@/lib/astro/sky";
 import { appHref, getCity, nearbyCities } from "@/lib/cities";
+import { cityDescription, cityProfileParagraphs, latitudeLabel } from "@/lib/city-copy";
 import { SITE_URL } from "@/lib/site";
 
 export const revalidate = 1800;
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!city) return {};
 
   const title = `${city.name} night sky tonight: what to see and when | Look Up`;
-  const description = `Space station passes, visible planets, the moon and meteor showers above ${city.name} tonight, with exact local times. Recalculated through the day from live data.`;
+  const description = cityDescription(city);
   const card = `/api/card?${new URLSearchParams({
     lat: String(city.lat),
     lon: String(city.lon),
@@ -72,6 +73,15 @@ export default async function CityPage({ params }: { params: Params }) {
       <PageTitle kicker={`${city.name}, ${city.country}`}>The sky above {city.name} tonight</PageTitle>
 
       <CitySky city={city} initial={report} />
+
+      <section className="mt-14">
+        <h2 className="kicker mb-3">The sky from {latitudeLabel(city.lat)}</h2>
+        <div className="max-w-xl space-y-4 text-[15px] leading-relaxed text-ink-soft/90">
+          {cityProfileParagraphs(city).map((p) => (
+            <p key={p}>{p}</p>
+          ))}
+        </div>
+      </section>
 
       <section className="mt-12">
         <Link
