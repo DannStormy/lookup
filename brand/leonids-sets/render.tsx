@@ -69,9 +69,9 @@ function set(prefix: string, region: string, cities: string[]): Slide[] {
   const list = names.length > 2 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names.join(" and ");
   const content = [
     {
-      kicker: "Monday night, Nov 16, into Tuesday",
+      kicker: "Tuesday night, Nov 17, into Wednesday",
       title: `The Leonids from ${region}`,
-      body: [`When and where to look from ${list}.`, "Save this for Monday night."],
+      body: [`When and where to look from ${list}.`, "Save this for Tuesday night."],
     },
     ...cities.map(citySlide),
     howTo,

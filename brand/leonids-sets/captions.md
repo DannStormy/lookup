@@ -6,11 +6,11 @@ Upload each set as one photo post, slides in number order from `slides/<set>/`. 
 
 Post: Thu 12 Nov, 7 PM UK.
 
-**Title:** Leonids from the UK, Monday night
+**Title:** Leonids from the UK, Tuesday night
 
 **Caption:**
 
-The Leonids peak Monday night into Tuesday. Times for London and Manchester inside. Not in either? Comment your town and we'll tell you when to look. Photos: NASA/Bill Ingalls.
+The Leonids peak Tuesday night into Wednesday. Times for London and Manchester inside. Not in either? Comment your town and we'll tell you when to look. Photos: NASA/Bill Ingalls.
 
 #leonids #meteorshower #uk #nightsky
 
@@ -18,10 +18,10 @@ The Leonids peak Monday night into Tuesday. Times for London and Manchester insi
 
 Post: Fri 13 Nov, 11 PM UK (6 PM New York, 3 PM Los Angeles).
 
-**Title:** Leonids from North America, Monday night
+**Title:** Leonids from North America, Tuesday night
 
 **Caption:**
 
-The Leonids peak Monday night into Tuesday. Times for New York, Toronto, Chicago and Los Angeles inside, each in local time. Somewhere else? Comment your city and we'll tell you when to look. Photos: NASA/Bill Ingalls.
+The Leonids peak Tuesday night into Wednesday. Times for New York, Toronto, Chicago and Los Angeles inside, each in local time. Somewhere else? Comment your city and we'll tell you when to look. Photos: NASA/Bill Ingalls.
 
 #leonids #meteorshower #nightsky #astronomy
